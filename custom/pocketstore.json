@@ -1,7 +1,7 @@
 {
   "domains": {
-    "nuxt": "demo.pocketstore.io",
-    "pocketbase": "admin.pocketstore.io"
+    "nuxt": "bowler.pro",
+    "pocketbase": "admin.bowler.pro"
   },
   "maintance": {
     "enabled": false,
@@ -36,7 +36,7 @@
       "id": "36ed47d8-6292-415a-bfce-f218a0e0d183"
     },
     "pirsch": {
-      "id": "YJOaZhm8IdEgTO9uy5lzkF583HLgfQs7"
+      "id": "VzeMvYWsw38ExvfiDDUzpW8RvnWjkPzq"
     }
   },
   "payment": {
