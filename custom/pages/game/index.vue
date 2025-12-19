@@ -4,6 +4,7 @@
     <section class="grid grid-cols-6 gap-3">
       <TeamScoreboard v-for="team in game.teams"
                       :game="game.id" :team="team"
+                      :isLeader="isEnemy(team).length > 0"
                       @score="handleScore($event,team)"
       />
     </section>
@@ -21,6 +22,7 @@ import WinnerButton from "@/components/WinnerButton.vue";
 const pb = usePocketBase()
 const route = useRoute()
 
+const teams = ref([]);
 const game = ref({});
 const winner = ref({
   team: null,
@@ -28,7 +30,16 @@ const winner = ref({
 })
 
 const load = async () => {
-  game.value = await pb.collection('league_game').getOne(route.query.id);
+  game.value = await pb.collection('league_game').getOne(route.query.id, {
+    expand: 'teams'
+  });
+  teams.value = game.value.expand.teams;
+}
+
+const isEnemy = (teamID) => {
+  return teams.value
+      .filter(team => team.leader.includes(pb.authStore.record.id))
+      .filter(team => team.id !== teamID);
 }
 
 const handleScore = (score, team) => {

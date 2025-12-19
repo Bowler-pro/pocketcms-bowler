@@ -35,6 +35,9 @@
             <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader" class="btn btn-info btn-sm">
               is Leader
             </a>
+            <a :href="'/de/game/confirm?game='+spiel.id" v-if="props.isLeader" class="btn btn-success btn-sm">
+              confirm
+            </a>
           </td>
         </tr>
         </tbody>
@@ -66,6 +69,9 @@
             <a :href="'/de/baker/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
             <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader" class="btn btn-info btn-sm">bearbeiten</a>
+            <a :href="'/de/baker/confirm?game='+spiel.id" v-if="props.isLeader" class="btn btn-success btn-sm">
+              confirm
+            </a>
           </td>
         </tr>
         </tbody>
@@ -84,6 +90,9 @@ const pb = usePocketBase()
 const props = defineProps({
   team: {
     type: String, required: true
+  },
+  isLeader: {
+    type: Boolean, required: true
   },
   game: {
     type: String, required: true
