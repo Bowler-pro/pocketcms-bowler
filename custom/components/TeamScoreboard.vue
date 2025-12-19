@@ -26,7 +26,7 @@
             </span>
           </td>
           <td>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand.player.id == pb.authStore.record.id"
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player.id == pb.authStore.record.id"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
           </td>
         </tr>
@@ -52,7 +52,7 @@
             </span>
           </td>
           <td>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand.player.id == pb.authStore.record.id"
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player.id == pb.authStore.record?.id"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
           </td>
         </tr>
