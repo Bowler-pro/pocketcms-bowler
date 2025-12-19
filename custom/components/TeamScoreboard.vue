@@ -34,7 +34,7 @@
       </table>
     </div>
     <h2 class="font-bold">Baker:</h2>
-    <div v-if="baker.length == 0">Test</div>
+    <div v-if="baker.length == 0">Kein Baker</div>
     <div v-else class="overflow-x-auto">
       <table class="table">
         <!-- head -->
@@ -109,6 +109,8 @@ const score = computed(() => {
 });
 
 const isPlayer = computed(() => {
+  console.log(pb.authStore.record.team);
+  console.log(props.team);
   return pb.authStore.record.team == props.team;
 });
 
