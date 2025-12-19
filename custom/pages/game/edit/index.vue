@@ -58,7 +58,7 @@ onMounted(async ()=>{
 const remove = async (id) =>{
   if(confirm('Eintrag löschen ?')){
     await pb.collection('players_game').delete(id)
-    router.push('game?id='+form.value.game);
+    router.push('/game?id='+form.value.game);
   }
 }
 
