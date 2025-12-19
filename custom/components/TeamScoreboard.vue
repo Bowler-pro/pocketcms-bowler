@@ -9,17 +9,57 @@
       </section>
     </section>
     <h2 class="font-bold">Spiele:</h2>
-    <div v-for="spiel in games" class="my-3">
-     <span>
-        {{ spiel.name }} - {{ spiel.expand.player.name }} - {{ spiel.score }}
-     </span>
-      <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand.player.id == pb.authStore.record.id"
-         class="btn btn-sm btn-primary ml-3">bearbeiten</a>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <!-- head -->
+        <thead>
+        <tr>
+          <th>Name - Spieler - Score</th>
+          <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="spiel in games" class="my-3">
+          <td>
+            <span>
+                  {{ spiel.name }} - {{ spiel.expand.player.name }} - {{ spiel.score }}
+            </span>
+          </td>
+          <td>
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand.player.id == pb.authStore.record.id"
+               class="btn btn-sm btn-primary ml-3">bearbeiten</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
     <h2 class="font-bold">Baker:</h2>
-    <div v-for="spiel in baker">
-      {{ spiel.expand.team.name }} - {{ spiel.score }}
+    <div v-if="baker.length == 0">Test</div>
+    <div v-else class="overflow-x-auto">
+      <table class="table">
+        <!-- head -->
+        <thead>
+        <tr>
+          <th>Name - Spieler - Score</th>
+          <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="spiel in baker" class="my-3">
+          <td>
+            <span>
+                  {{ spiel.expand.team.name }} - {{ spiel.score }}
+            </span>
+          </td>
+          <td>
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand.player.id == pb.authStore.record.id"
+               class="btn btn-sm btn-primary ml-3">bearbeiten</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
+
     {{ score }}
   </section>
 </template>
@@ -69,10 +109,7 @@ const score = computed(() => {
 });
 
 const isPlayer = computed(() => {
-  return !!pb.authStore.record.team.some((item) => {
-    return item == props.team;
-  });
-
+  return pb.authStore.record.team == props.team;
 });
 
 const add = () => {
