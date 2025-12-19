@@ -16,7 +16,7 @@
           'bg-gray-300': index % 2 != 0
         }">
           <td>
-            {{liga.name}}
+            {{ liga.name }}
           </td>
           <td>
             <a :href="'/de/game?id='+liga.id" class="btn btn-sm btn-primary">
@@ -34,16 +34,27 @@
 
 import {usePocketBase} from "@/utils/pocketbase";
 import {onMounted} from "vue";
+import {useRoute} from "vue-router";
+import {addBreadcrumb} from "@/utils/breadcrumb";
 
 const pb = usePocketBase()
+const route = useRoute()
 
 const games = ref([]);
 
 const load = async () => {
-  games.value = (await pb.collection('games').getList(1,10,{})).items;
+  games.value = (await pb.collection('league_game').getList(1, 10, {
+    filter: 'league="' + route.query.id + '"'
+  })).items;
+
+  addBreadcrumb({
+    code: 'dashboard',
+    icon: 'question-mark',
+    link: 'dashboard'
+  })
 }
 
-onMounted(()=>{
+onMounted(() => {
   load();
 })
 </script>

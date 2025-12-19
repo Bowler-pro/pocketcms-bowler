@@ -1,0 +1,49 @@
+<template>
+  <section class="bg-white px-3 py-3">
+    {{ game.name }} | {{ game.teams }} <br>
+
+    <section class="grid grid-cols-6 gap-3">
+      <TeamScoreboard v-for="team in game.teams" :game="game.id" :team="team" @score="handleScore($event,team)"/>
+    </section>
+    <WinnerButton :data="winner"></WinnerButton>
+  </section>
+</template>
+
+<script setup lang="ts">
+import {usePocketBase} from "@/utils/pocketbase";
+import {onMounted} from "vue";
+import {useRoute} from 'vue-router'
+import TeamScoreboard from "@/components/TeamScoreboard.vue";
+import WinnerButton from "@/components/WinnerButton.vue";
+
+const pb = usePocketBase()
+const route = useRoute()
+
+const game = ref({});
+const winner = ref({
+  team: null,
+  score: 0
+})
+
+const load = async () => {
+  game.value = await pb.collection('league_game').getOne(route.query.id);
+}
+
+const handleScore = (score,team) =>{
+  console.log(team);
+  console.log(score);
+  if(winner.value.score < score){
+    winner.value = {
+      team,
+      score
+    }
+  }
+}
+
+onMounted(() => {
+  if (!route.query.id && !route.query.team && !route.query.game) {
+    navigateTo('/dashboard')
+  }
+  load();
+})
+</script>

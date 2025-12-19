@@ -81,7 +81,7 @@ async function handleLogin() {
 
   try {
     // Authenticate with email and password
-    const user = await pb.collection("player").authWithPassword(email.value, password.value);
+    const user = await pb.collection("players").authWithPassword(email.value, password.value);
     console.log("User authenticated successfully:", user);
 
     navigateTo('/dashboard');
