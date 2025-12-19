@@ -29,10 +29,8 @@ const load = async () => {
   game.value = await pb.collection('league_game').getOne(route.query.id);
 }
 
-const handleScore = (score,team) =>{
-  console.log(team);
-  console.log(score);
-  if(winner.value.score < score){
+const handleScore = (score, team) => {
+  if (winner.value.score < score) {
     winner.value = {
       team,
       score

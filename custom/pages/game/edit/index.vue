@@ -43,11 +43,16 @@ const load = async () => {
   form.value = await pb.collection('players_game').getOne(route.query.game);
 }
 
-onMounted(()=>{
+onMounted(async ()=>{
   if(!pb.authStore.isValid){
     navigateTo('/')
   }
-  load();
+  await load();
+  addBreadcrumb({
+    icon: 'chevron-double-left',
+    link: 'game?id='+form.value.game,
+    code: 'back-to-game'
+  })
 });
 
 const update = async () => {
