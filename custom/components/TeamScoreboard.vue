@@ -29,9 +29,12 @@
           <td>
             {{ spiel.score }}
           </td>
-          <td>
+          <td class="space-x-3">
             <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record.id"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader" class="btn btn-info btn-sm">
+              is Leader
+            </a>
           </td>
         </tr>
         </tbody>
@@ -60,8 +63,9 @@
             {{ spiel.score }}
           </td>
           <td>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id"
+            <a :href="'/de/baker/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
+            <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader" class="btn btn-info btn-sm">bearbeiten</a>
           </td>
         </tr>
         </tbody>
@@ -117,9 +121,11 @@ const score = computed(() => {
 });
 
 const isPlayer = computed(() => {
-  console.log(pb.authStore.record.team);
-  console.log(props.team);
   return pb.authStore.record.team == props.team;
+});
+
+const isTeamLeader = computed(() => {
+  return team.value.leader ? toRaw(team.value.leader).includes(pb.authStore.record.id) : false;
 });
 
 const add = () => {
@@ -136,6 +142,5 @@ onMounted(async () => {
   pb.collection('teams_baker').subscribe('*', function (e) {
     load();
   }, {});
-
 });
 </script>

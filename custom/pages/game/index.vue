@@ -1,9 +1,11 @@
 <template>
   <section class="bg-white px-3 py-3">
     {{ game.name }} | {{ game.teams }} <br>
-
     <section class="grid grid-cols-6 gap-3">
-      <TeamScoreboard v-for="team in game.teams" :game="game.id" :team="team" @score="handleScore($event,team)"/>
+      <TeamScoreboard v-for="team in game.teams"
+                      :game="game.id" :team="team"
+                      @score="handleScore($event,team)"
+      />
     </section>
     <WinnerButton :data="winner"></WinnerButton>
   </section>

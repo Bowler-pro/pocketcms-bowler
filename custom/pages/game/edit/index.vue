@@ -16,7 +16,7 @@
             <input type="number" required v-model="form.score" class="validator input w-full" />
           </label>
           <section class="actions flex justify-between mt-3">
-            <button class="btn btn-error">löschen</button>
+            <button @click="remove(form.id)" class="btn btn-error">löschen</button>
             <button  type="submit" class="btn btn-primary">
               update
             </button>
@@ -49,11 +49,18 @@ onMounted(async ()=>{
   }
   await load();
   addBreadcrumb({
-    icon: 'chevron-double-left',
+    icon: null,
     link: 'game?id='+form.value.game,
     code: 'back-to-game'
   })
 });
+
+const remove = async (id) =>{
+  if(confirm('Eintrag löschen ?')){
+    await pb.collection('players_game').delete(id)
+    router.push('game?id='+form.value.game);
+  }
+}
 
 const update = async () => {
   await pb.collection('players_game').update(form.value.id, form.value);
