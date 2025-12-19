@@ -7,7 +7,7 @@
             <span>Your Name</span>
             <input type="text" required v-model="form.name" class="validator input w-full" />
           </label>
-          <label class="floating-label mt-3">
+          <label class="floating-label mt-3 hidden">
             <span>Your Game</span>
             <input type="text" required v-model="form.game" class="validator input w-full" />
           </label>
