@@ -15,7 +15,8 @@
             <span>Your Score</span>
             <input type="number" required v-model="form.score" class="validator input w-full" />
           </label>
-          <section class="actions flex justify-end mt-3">
+          <section class="actions flex justify-between mt-3">
+            <button class="btn btn-error">löschen</button>
             <button  type="submit" class="btn btn-primary">
               update
             </button>

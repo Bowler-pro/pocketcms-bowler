@@ -14,16 +14,20 @@
         <!-- head -->
         <thead>
         <tr>
-          <th>Name - Spieler - Score</th>
-          <th>Name</th>
+          <th>Name - Spieler</th>
+          <th>Score</th>
+          <th>Aktionen</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="spiel in games" class="my-3">
           <td>
             <span>
-                  {{ spiel.name }} - {{ spiel.expand.player.name }} - {{ spiel.score }}
+                  {{ spiel.name }} - {{ spiel.expand.player.name }}
             </span>
+          </td>
+          <td>
+            {{ spiel.score }}
           </td>
           <td>
             <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record.id"
@@ -40,16 +44,20 @@
         <!-- head -->
         <thead>
         <tr>
-          <th>Name - Spieler - Score</th>
-          <th>Name</th>
+          <th>Name - Spieler</th>
+          <th>Score</th>
+          <th>Aktionen</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="spiel in baker" class="my-3">
           <td>
             <span>
-                  {{ spiel.expand.team.name }} - {{ spiel.score }}
+                  {{ spiel.expand.team.name }}
             </span>
+          </td>
+          <td>
+            {{ spiel.score }}
           </td>
           <td>
             <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id"

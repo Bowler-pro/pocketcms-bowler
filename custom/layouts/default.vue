@@ -8,7 +8,6 @@
       <Breadcrumb/>
       <CookieBanner/>
       <BackToTop/>
-      <BugReporting />
       <IssueReporting vendor="pocketstore-io" host="github.com" name="demo" />
       <slot/>
     </main>

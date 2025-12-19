@@ -12,7 +12,7 @@ const player = ref({});
 
 const load = async () => {
   pb.autoCancellation(false);
-  player.value = await pb.collection('player').getOne(props.identifier);
+  player.value = await pb.collection('players').getOne(props.identifier);
 }
 
 onMounted(()=>{
