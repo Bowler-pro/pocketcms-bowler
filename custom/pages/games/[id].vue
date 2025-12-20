@@ -19,7 +19,7 @@
             {{ liga.name }}
           </td>
           <td>
-            <a :href="'/de/game?id='+liga.id" class="btn btn-sm btn-primary">
+            <a :href="'/de/game/'+liga.id" class="btn btn-sm btn-primary">
               anschauen
             </a>
           </td>

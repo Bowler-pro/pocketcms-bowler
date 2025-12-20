@@ -1,6 +1,9 @@
 <template>
   <section class="bg-white px-3 py-3">
-    {{ game.name }} | {{ game.teams }} <br>
+   <section class="headline mb-3">
+     {{game.expand?.league.name}} -
+     {{ game.name }} | {{teamNamesVs}}
+   </section> <br>
     <section class="grid grid-cols-6 gap-3">
       <TeamScoreboard v-for="team in game.teams"
                       :game="game.id" :team="team"
@@ -30,11 +33,16 @@ const winner = ref({
 })
 
 const load = async () => {
-  game.value = await pb.collection('league_game').getOne(route.query.id, {
-    expand: 'teams'
+  game.value = await pb.collection('league_game').getOne(route.params.id, {
+    expand: 'teams,league'
   });
   teams.value = game.value.expand.teams;
 }
+
+const teamNamesVs = computed(()=>{
+  let teamNames = game.value.expand?.teams?.map(team => team.name) || [];
+  return teamNames.join(' vs. ');
+});
 
 const isEnemy = (teamID) => {
   return teams.value
@@ -45,14 +53,14 @@ const isEnemy = (teamID) => {
 const handleScore = (score, team) => {
   if (winner.value.score < score) {
     winner.value = {
-      team,
-      score
+      team: teams.value.find(item => item.id == team),
+      score: score
     }
   }
 }
 
 onMounted(() => {
-  if (!route.query.id && !route.query.team && !route.query.game) {
+  if (!route.params.id && !route.query.team && !route.params.game) {
     navigateTo('/dashboard')
   }
   load();

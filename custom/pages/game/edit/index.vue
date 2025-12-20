@@ -50,7 +50,7 @@ onMounted(async ()=>{
   await load();
   addBreadcrumb({
     icon: null,
-    link: 'game?id='+form.value.game,
+    link: 'game/'+form.value.game,
     code: 'back-to-game'
   })
 });
@@ -58,12 +58,12 @@ onMounted(async ()=>{
 const remove = async (id) =>{
   if(confirm('Eintrag löschen ?')){
     await pb.collection('players_game').delete(id)
-    router.push('/game?id='+form.value.game);
+    router.push('/game/'+form.value.game);
   }
 }
 
 const update = async () => {
   await pb.collection('players_game').update(form.value.id, form.value);
-  router.push('/game?id='+form.value.game)
+  router.push('/game/'+form.value.game)
 }
 </script>

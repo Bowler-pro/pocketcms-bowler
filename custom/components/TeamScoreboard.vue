@@ -4,7 +4,7 @@
       <h1 class="font-bold text-primary">{{ team.name }}</h1>
       <section class="actions">
         <button v-if="isPlayer" @click="add()" class="btn btn-primary btn-sm">
-          <font-awesome-icon :icon="['fas', 'plus']" />
+          <font-awesome-icon :icon="['fas', 'plus']"/>
         </button>
       </section>
     </section>
@@ -23,20 +23,29 @@
         <tr v-for="spiel in games" class="my-3">
           <td>
             <span>
-                  {{ spiel.name }} - {{ spiel.expand.player.name }}
+              {{ spiel.name }}
+              - <a :href="'/de/player/'+spiel.expand.player.id" class="text-primary">
+              <b>
+                {{ spiel.expand.player.name }}
+              </b>
+            </a>
             </span>
           </td>
           <td>
             {{ spiel.score }}
           </td>
           <td class="space-x-3">
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record.id && spiel.locked == false"
+            <a :href="'/de/game/edit?game='+spiel.id"
+               v-if="spiel.expand?.player?.id == pb.authStore.record.id && spiel.locked == false"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false" class="btn btn-info btn-sm">
-              is Leader
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false"
+               class="btn btn-info btn-sm">
+              <span>bearbeiten</span>
+              <font-awesome-icon :icon="['fas', 'user-tie']"/>
             </a>
-            <a :href="'/de/game/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false" class="btn btn-success btn-sm">
-              <font-awesome-icon :icon="['fas', 'check']" />
+            <a :href="'/de/game/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false"
+               class="btn btn-success btn-sm">
+              <font-awesome-icon :icon="['fas', 'check']"/>
             </a>
           </td>
         </tr>
@@ -50,7 +59,7 @@
         <!-- head -->
         <thead>
         <tr>
-          <th>Name - Spieler</th>
+          <th>Team Name</th>
           <th>Score</th>
           <th>Aktionen</th>
         </tr>
@@ -58,33 +67,35 @@
         <tbody>
         <tr v-for="spiel in baker" class="my-3">
           <td>
-            <span>
-                  {{ spiel.expand.team.name }}
-            </span>
+            <a :href="'/de/team/'+spiel.expand.team.id" class="text-primary">
+              {{ spiel.expand.team.name }}
+            </a>
           </td>
           <td>
             {{ spiel.score }}
           </td>
           <td>
-            <a :href="'/de/baker/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id && spiel.locked == false"
+            <a :href="'/de/baker/edit?game='+spiel.id"
+               v-if="spiel.expand?.player?.id == pb.authStore.record?.id && spiel.locked == false"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
-            <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false" class="btn btn-info btn-sm">bearbeiten</a>
-            <a :href="'/de/baker/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false" class="btn btn-success btn-sm">
-              <font-awesome-icon :icon="['fas', 'check']" />
+            <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false"
+               class="btn btn-info btn-sm">bearbeiten</a>
+            <a :href="'/de/baker/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false"
+               class="btn btn-success btn-sm">
+              <font-awesome-icon :icon="['fas', 'check']"/>
             </a>
           </td>
         </tr>
         </tbody>
       </table>
+<div class="hidden">{{score}}</div>
     </div>
-
-    {{ score }}
   </section>
 </template>
 
 <script setup lang="ts">
 import {usePocketBase} from "@/utils/pocketbase";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 const emit = defineEmits(['score']);
 const pb = usePocketBase()

@@ -49,6 +49,6 @@ onMounted(()=>{
 
 const add = async () => {
   await pb.collection('players_game').create(form.value);
-  router.push('/game?id='+form.value.game)
+  router.push('/game/'+form.value.game)
 }
 </script>

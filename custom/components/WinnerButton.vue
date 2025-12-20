@@ -1,6 +1,8 @@
 <template>
   <button class="btn text-center btn-block btn-primary">
-    {{ props.data }}
+    Gewinner:
+    {{ props.data.team?.name }}
+    {{ props.data.score }}
   </button>
 </template>
 
