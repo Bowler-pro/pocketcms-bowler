@@ -5,7 +5,7 @@
       <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
       <div class="card-actions justify-end">
         <a :href="'/de/team/'+props.data.id" class="btn btn-primary">View</a>
-        <a :href="'/de/players/?team='+props.data.id" class="btn btn-primary">Players ({{props.data.players.length}})</a>
+        <a :href="'/de/players/'+props.data.id" class="btn btn-primary">Players ({{props.data.players.length}})</a>
       </div>
     </div>
   </div>

@@ -17,7 +17,7 @@ const clubs = ref({});
 const teams = ref([]);
 
 onMounted(async () => {
-  clubs.value = await pb.collection('clubs').getOne(route.query.club, {
+  clubs.value = await pb.collection('clubs').getOne(route.param.club, {
     expand: 'teams'
   });
   teams.value = clubs.value.expand.teams;

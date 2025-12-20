@@ -44,7 +44,7 @@ const games = ref([]);
 
 const load = async () => {
   games.value = (await pb.collection('league_game').getList(1, 10, {
-    filter: 'league="' + route.query.id + '"'
+    filter: 'league="' + route.params.id + '"'
   })).items;
 
   addBreadcrumb({

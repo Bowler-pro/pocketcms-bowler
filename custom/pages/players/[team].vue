@@ -17,7 +17,7 @@ const players = ref({});
 
 onMounted(async () => {
   players.value = (await pb.collection('players').getList(1,10, {
-    filter: 'team="'+route.query.team+'"'
+    filter: 'team="'+route.params.team+'"'
   })).items;
 });
 </script>
