@@ -4,7 +4,7 @@
       <h1 class="font-bold text-primary">{{ team.name }}</h1>
       <section class="actions">
         <button v-if="isPlayer" @click="add()" class="btn btn-primary btn-sm">
-          add score
+          <font-awesome-icon :icon="['fas', 'plus']" />
         </button>
       </section>
     </section>
@@ -30,13 +30,13 @@
             {{ spiel.score }}
           </td>
           <td class="space-x-3">
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record.id"
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record.id && spiel.locked == false"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader" class="btn btn-info btn-sm">
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false" class="btn btn-info btn-sm">
               is Leader
             </a>
-            <a :href="'/de/game/confirm?game='+spiel.id" v-if="props.isLeader" class="btn btn-success btn-sm">
-              confirm
+            <a :href="'/de/game/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false" class="btn btn-success btn-sm">
+              <font-awesome-icon :icon="['fas', 'check']" />
             </a>
           </td>
         </tr>
@@ -66,11 +66,11 @@
             {{ spiel.score }}
           </td>
           <td>
-            <a :href="'/de/baker/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id"
+            <a :href="'/de/baker/edit?game='+spiel.id" v-if="spiel.expand?.player?.id == pb.authStore.record?.id && spiel.locked == false"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
-            <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader" class="btn btn-info btn-sm">bearbeiten</a>
-            <a :href="'/de/baker/confirm?game='+spiel.id" v-if="props.isLeader" class="btn btn-success btn-sm">
-              confirm
+            <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false" class="btn btn-info btn-sm">bearbeiten</a>
+            <a :href="'/de/baker/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false" class="btn btn-success btn-sm">
+              <font-awesome-icon :icon="['fas', 'check']" />
             </a>
           </td>
         </tr>
@@ -84,6 +84,7 @@
 
 <script setup lang="ts">
 import {usePocketBase} from "@/utils/pocketbase";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const emit = defineEmits(['score']);
 const pb = usePocketBase()
