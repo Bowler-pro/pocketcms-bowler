@@ -20,10 +20,10 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="spiel in games" class="my-3">
+        <tr v-for="(spiel,index) in games" class="my-3">
           <td>
             <span>
-              {{ spiel.name }}
+              Spiel #{{ index + 1 }}
               - <a :href="'/de/player/'+spiel.expand.player.id" class="text-primary">
               <b>
                 {{ spiel.expand.player.name }}
@@ -65,9 +65,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="spiel in baker" class="my-3">
+        <tr v-for="(spiel,index) in baker" class="my-3">
           <td>
-            <a :href="'/de/team/'+spiel.expand.team.id" class="text-primary">
+            Baker #{{index+1}} - <a :href="'/de/team/'+spiel.expand.team.id" class="text-primary">
               {{ spiel.expand.team.name }}
             </a>
           </td>
@@ -119,7 +119,7 @@ const load = async () => {
   games.value = (await pb.collection('players_game').getList(1, 50, {
     filter: 'game="' + props.game + '" && player.team ~"' + props.team + '"',
     expand: 'player',
-    sort: 'name'
+    sort: 'created'
   })).items;
   baker.value = (await pb.collection('teams_baker').getList(1, 50, {
     filter: 'game="' + props.game + '" && team ="' + props.team + '"',
