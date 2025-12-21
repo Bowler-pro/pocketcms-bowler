@@ -51,8 +51,7 @@ const isEnemy = (teamID) => {
 }
 
 const handleScore = (score, team) => {
-  console.log(score);
-  if (winner.value.score <= score) {
+  if (winner.value.score < score) {
     winner.value = {
       team: teams.value.find(item => item.id == team),
       score
