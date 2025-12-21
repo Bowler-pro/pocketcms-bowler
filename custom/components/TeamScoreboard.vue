@@ -38,7 +38,7 @@
             <a :href="'/de/game/edit?game='+spiel.id"
                v-if="spiel.expand?.player?.id == pb.authStore.record.id && spiel.locked == false"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="isTeamLeader && spiel.locked == false"
+            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id != pb.authStore.record.id && isTeamLeader && spiel.locked == false"
                class="btn btn-info btn-sm">
               <span>bearbeiten</span>
               <font-awesome-icon :icon="['fas', 'user-tie']"/>
