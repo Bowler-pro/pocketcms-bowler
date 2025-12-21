@@ -4,7 +4,7 @@
      {{game.expand?.league.name}} -
      {{ game.name }} | {{teamNamesVs}}
    </section> <br>
-    <section class="grid grid-cols-6 gap-3">
+    <section class="grid grid-cols-6 gap-3 mb-3">
       <TeamScoreboard v-for="team in game.teams"
                       :game="game.id" :team="team"
                       :isLeader="isEnemy(team).length > 0"
@@ -51,10 +51,11 @@ const isEnemy = (teamID) => {
 }
 
 const handleScore = (score, team) => {
-  if (winner.value.score < score) {
+  console.log(score);
+  if (winner.value.score <= score) {
     winner.value = {
       team: teams.value.find(item => item.id == team),
-      score: score
+      score
     }
   }
 }
@@ -62,6 +63,9 @@ const handleScore = (score, team) => {
 onMounted(() => {
   if (!route.params.id && !route.query.team && !route.params.game) {
     navigateTo('/dashboard')
+  }
+  if(!pb.authStore.isValid){
+    router.push('/login')
   }
   load();
 })

@@ -2,14 +2,17 @@
   <section class="card col-span-6 md:col-span-3">
     <section class="flex justify-between">
       <h1 class="font-bold text-primary">{{ team.name }}</h1>
-      <section class="actions">
+      <section class="actions space-x-3">
         <button v-if="isPlayer" @click="add()" class="btn btn-primary btn-sm">
-          <font-awesome-icon :icon="['fas', 'plus']"/>
+          <font-awesome-icon :icon="['fas', 'play']"/>
+        </button>
+        <button v-if="!isLeader && isPlayer" @click="modalBaker=true" class="btn btn-primary btn-sm">
+          <font-awesome-icon :icon="['fas', 'cake-candles']"/>
         </button>
       </section>
     </section>
     <h2 class="font-bold">Spiele:</h2>
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto" v-if="games.length">
       <table class="table">
         <!-- head -->
         <thead>
@@ -52,8 +55,23 @@
         </tbody>
       </table>
     </div>
+    <div v-else>
+      <section class="alert alert-error">
+        Keine Spiele
+      </section>
+    </div>
     <h2 class="font-bold">Baker:</h2>
-    <div v-if="baker.length == 0">Kein Baker</div>
+    <section class="flex headline justify-between">
+      <section class="actions">
+        <a :href="'/de/baker/edit?game='+spiel.id" v-if="isTeamLeader && spiel?.locked == false"
+           class="btn btn-info btn-sm">bearbeiten</a>
+      </section>
+    </section>
+    <div v-if="baker.length == 0">
+      <section class="alert alert-error">
+        Keine Baker
+      </section>
+    </div>
     <div v-else class="overflow-x-auto">
       <table class="table">
         <!-- head -->
@@ -88,7 +106,9 @@
         </tr>
         </tbody>
       </table>
-<div class="hidden">{{score}}</div>
+    </div>
+    <div class="hidden">
+      {{score}}
     </div>
   </section>
 </template>
@@ -113,6 +133,7 @@ const props = defineProps({
 const team = ref({});
 const games = ref([]);
 const baker = ref([]);
+const modalBaker = ref(false);
 
 const load = async () => {
   pb.autoCancellation(false);
