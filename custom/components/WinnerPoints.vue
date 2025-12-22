@@ -2,7 +2,8 @@
   <button class="btn text-center btn-block btn-primary">
     Gewinner:
   </button>
-  {{ winners.winner }}
+  {{ tmp1 }}
+  {{ tmp2 }}
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
@@ -21,6 +22,8 @@ const pb = usePocketBase();
 const games = ref([]);
 const bakers = ref([]);
 const winners = ref({});
+const tmp1 = ref({});
+const tmp2 = ref({});
 const teamScores = ref({
   gameScores: {}, // Raw scores from games
   bakerScores: {}, // Raw scores from bakers
@@ -221,7 +224,9 @@ onMounted(async () => {
   };
 
   // Debugging
-  console.log("Team Scores:", teamScores.value);
-  console.log("Winner:", winners.value);
+  console.log("Winner:", winners.value.scores.totalPoints);
+  console.log("Winner:", winners.value.scores.totalScores);
+  tmp1.value = winners.value.scores.totalPoints;
+  tmp2.value = winners.value.scores.totalScores;
 });
 </script>
