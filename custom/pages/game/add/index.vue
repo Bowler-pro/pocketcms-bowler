@@ -7,7 +7,15 @@
             <span>Your Name</span>
             <input type="text" required v-model="form.name" class="validator input w-full" />
           </label>
-          <label class="floating-label mt-3 hidden">
+          <label class="floating-label mt-3">
+            <span>Your Name</span>
+            <select v-model="form.round" class="select w-full">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+            </select>
+          </label>
+          <label class="floating-label mt-3">
             <span>Your Game</span>
             <input type="text" required v-model="form.game" class="validator input w-full" />
           </label>
@@ -33,6 +41,7 @@ const router = useRouter()
 const pb = usePocketBase()
 const form = ref({
   game: '',
+  round: '',
   name: '',
   score: '',
   player: '',

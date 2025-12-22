@@ -35,6 +35,9 @@
             </span>
           </td>
           <td>
+            {{ spiel.round }}
+          </td>
+          <td>
             {{ spiel.score }}
           </td>
           <td class="space-x-3">
@@ -107,7 +110,7 @@
         </tbody>
       </table>
     </div>
-    <div class="hidden">
+    <div class="">
       {{score}}
     </div>
   </section>
@@ -117,7 +120,7 @@
 import {usePocketBase} from "@/utils/pocketbase";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
-const emit = defineEmits(['score']);
+const emit = defineEmits(['score','result']);
 const pb = usePocketBase()
 const props = defineProps({
   team: {
@@ -140,7 +143,7 @@ const load = async () => {
   games.value = (await pb.collection('players_game').getList(1, 50, {
     filter: 'game="' + props.game + '" && player.team ~"' + props.team + '"',
     expand: 'player',
-    sort: 'created'
+    sort: '-round,created'
   })).items;
   baker.value = (await pb.collection('teams_baker').getList(1, 50, {
     filter: 'game="' + props.game + '" && team ="' + props.team + '"',
@@ -150,16 +153,17 @@ const load = async () => {
 }
 
 const score = computed(() => {
-  let tmp = 0;
+  let points = 0;
   baker.value.forEach((game) => {
-    tmp += game.score;
+    points += game.score;
   })
 
   games.value.forEach((game) => {
-    tmp += game.score;
+    points += game.score
   })
-  emit('score', tmp)
-  return tmp;
+
+  emit('score', points)
+  return points;
 });
 
 const isPlayer = computed(() => {
