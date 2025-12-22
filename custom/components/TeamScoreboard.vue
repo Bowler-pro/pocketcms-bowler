@@ -112,6 +112,7 @@
     </div>
     <div class="">
       {{score}}
+      {{blinde}}
     </div>
   </section>
 </template>
@@ -135,6 +136,7 @@ const props = defineProps({
 });
 const team = ref({});
 const games = ref([]);
+const blinde = ref(12);
 const baker = ref([]);
 const modalBaker = ref(false);
 
@@ -161,6 +163,7 @@ const score = computed(() => {
   games.value.forEach((game) => {
     points += game.score
   })
+  blinde.value = 12 - games.value.length;
 
   emit('score', points)
   return points;

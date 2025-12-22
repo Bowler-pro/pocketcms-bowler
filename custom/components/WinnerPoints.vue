@@ -19,6 +19,7 @@ const props = defineProps({
 const pb = usePocketBase();
 
 // Reactive variables
+const blinde = ref(12);
 const games = ref([]);
 const bakers = ref([]);
 const winners = ref({});
@@ -153,6 +154,8 @@ onMounted(async () => {
   bakers.value = (await pb.collection("teams_baker").getList(1, 100, {
     filter: `game="${props.league_game}"`,
   })).items;
+
+  blinde.value = 12 - games.value.length;
 
   // 1. Calculate game scores and points by round
   const gameScoresByRound = calculateScoresByRound(games);
