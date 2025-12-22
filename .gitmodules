@@ -2,6 +2,3 @@
 	path = baseline
 	url = https://github.com/pocketstore-io/storefront.git
 	branch = main
-[submodule "player"]
-	path = player
-	url = git@github.com:PocketPlayer-io/player.git
