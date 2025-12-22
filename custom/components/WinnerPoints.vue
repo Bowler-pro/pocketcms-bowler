@@ -1,257 +1,227 @@
 <template>
   <button class="btn text-center btn-block btn-primary">
     Gewinner:
-    {{ winners }}
   </button>
-  {{ result }}
+  {{ winners.winner }}
 </template>
-
 <script setup lang="ts">
-import {usePocketBase} from "@/utils/pocketbase";
+import { ref, onMounted } from "vue";
+import { usePocketBase } from "@/utils/pocketbase";
 
+// Props declaration
 const props = defineProps({
-  league_game: {type: String, required: true},
-  teams: {type: Object, required: true},
+  league_game: { type: String, required: true },
+  teams: { type: Object, required: true }, // Adjust type based on expected structure
 });
 
-const pb = usePocketBase()
+// PocketBase instance
+const pb = usePocketBase();
 
+// Reactive variables
 const games = ref([]);
 const bakers = ref([]);
 const winners = ref({});
-const result = ref([]);
+const teamScores = ref({
+  gameScores: {}, // Raw scores from games
+  bakerScores: {}, // Raw scores from bakers
+  totalScores: {}, // Combined raw scores: games + bakers
+  gamePoints: {}, // Calculated points from games
+  bakerPoints: {}, // Calculated points from bakers
+  outcomePoints: {}, // Final 2/1/0 points added to total points
+  totalPoints: {}, // Grand total points: gamePoints + bakerPoints + outcomePoints
+});
 
-function calculatePointsForGame(teamScoresByRound) {
-  const roundResults = []; // To store formatted results for each round
-  const totalPoints = {}; // To store cumulative points across all rounds
+// Function to calculate raw scores from games
+function calculateRawGameScores(gamesList: typeof games) {
+  const gameScoreTotals: Record<string, number> = {};
 
-  // Iterate through each round
-  Object.keys(teamScoresByRound).forEach((round) => {
-    const scores = teamScoresByRound[round];
-    const teams = Object.keys(scores); // Teams in this round
-
-    // Determine the highest score for this round
-    const maxScore = Math.max(...Object.values(scores));
-    const winners = teams.filter((team) => scores[team] === maxScore); // Teams with the max score
-
-    const roundPoints = {};
-    teams.forEach((team) => {
-      if (winners.includes(team)) {
-        // Winners each get 2 points
-        roundPoints[team] = 2;
-      } else {
-        // Losers get 0 points
-        roundPoints[team] = 0;
-      }
-
-      // Add points to the cumulative total
-      if (!totalPoints[team]) {
-        totalPoints[team] = 0; // Initialize total points if not already present
-      }
-      totalPoints[team] += roundPoints[team];
-    });
-
-    // Format the result for this round
-    const formattedRound = teams
-        .map((team) => `${team} (${roundPoints[team]})`)
-        .join(" : ");
-    const winnerText =
-        winners.length === 1 ? `won by "${winners[0]}"` : `It's a draw`;
-
-    roundResults.push({
-      round,
-      result: `${formattedRound}, ${winnerText}`
-    });
+  gamesList.value.forEach((game: any) => {
+    const team = game.expand.player.team; // Team from expanded player object
+    const score = parseInt(game.score, 10) || 0; // Parse and default to 0
+    gameScoreTotals[team] = (gameScoreTotals[team] || 0) + score;
   });
 
-  // Determine overall winner(s) based on total points
-  const maxTotalPoints = Math.max(...Object.values(totalPoints));
-  const overallWinners = Object.keys(totalPoints).filter(
-      (team) => totalPoints[team] === maxTotalPoints
-  );
-
-  return { roundResults, totalPoints, overallWinners };
+  return gameScoreTotals;
 }
 
+// Function to calculate raw scores from bakers
+function calculateRawBakerScores(bakersList: typeof bakers) {
+  const bakerScoreTotals: Record<string, number> = {};
 
+  bakersList.value.forEach((baker: any) => {
+    const team = baker.team; // Team from baker record
+    const score = parseInt(baker.score, 10) || 0; // Parse and default to 0
+    bakerScoreTotals[team] = (bakerScoreTotals[team] || 0) + score;
+  });
 
+  return bakerScoreTotals;
+}
 
-function calculateScoresByRound(games) {
-  const scoresByRound = {};
+// Function to calculate scores by round from games
+function calculateScoresByRound(gamesList: typeof games) {
+  const scoresByRound: Record<string, Record<string, number>> = {};
 
-  // Loop through each game
-  games.value.forEach((game) => {
-    const round = game.round; // Get the round (e.g., "1", "2", "3")
-    const team = game.expand.player.team; // Access the player's team
-    const score = game.score || 0; // Get the score, default to 0 if not set
+  gamesList.value.forEach((game: any) => {
+    const round = game.round; // Round identifier (e.g., "1", "2", ...)
+    const team = game.expand.player.team; // Team from expanded player object
+    const score = parseInt(game.score, 10) || 0; // Parse and default to 0 for missing scores
 
-    // Initialize the round if not already added
+    // Initialize the round's score object if it doesn't exist
     if (!scoresByRound[round]) {
       scoresByRound[round] = {};
     }
 
-    // Initialize the team's score for this round if not already added
-    if (!scoresByRound[round][team]) {
-      scoresByRound[round][team] = 0;
-    }
-
-    // Sum up the team's score for this round
-    scoresByRound[round][team] += score;
+    // Sum the scores for the team per round
+    scoresByRound[round][team] = (scoresByRound[round][team] || 0) + score;
   });
 
   return scoresByRound;
 }
 
-function findWinnersByRound(teamScoresByRound) {
-  const winnersByRound = {};
+// Function to calculate points from games with proper tie handling (remi = 1 point for every team in case of a tie)
+function calculateGamePoints(teamScoresByRound: Record<string, Record<string, number>>) {
+  const totalPoints: Record<string, number> = {};
 
   Object.keys(teamScoresByRound).forEach((round) => {
-    const scores = teamScoresByRound[round];
-    let maxScore = -Infinity; // Start with the smallest number
-    let winner = null;
+    const roundScores = teamScoresByRound[round]; // Scores for the current round
+    const maxScore = Math.max(...Object.values(roundScores)); // Get maximum score
+    const tiedTeams = Object.keys(roundScores).filter((team) => roundScores[team] === maxScore);
 
-    // Loop through each team's scores to find the highest score
-    Object.keys(scores).forEach((team) => {
-      if (scores[team] > maxScore) {
-        maxScore = scores[team];
-        winner = team; // Update the winner
+    Object.keys(roundScores).forEach((team) => {
+      if (tiedTeams.length > 1) {
+        // If there is a tie, every team gets 1 point
+        totalPoints[team] = (totalPoints[team] || 0) + 1;
+      } else if (roundScores[team] === maxScore) {
+        // Winner gets 2 points
+        totalPoints[team] = (totalPoints[team] || 0) + 2;
+      } else {
+        // Loser gets 0 points (this is implicit since we don't add any points for other teams)
+        totalPoints[team] = totalPoints[team] || 0;
       }
     });
-
-    // Save the winner and their score for this round
-    winnersByRound[round] = { winner: winner, score: maxScore };
   });
 
-  return winnersByRound;
+  return totalPoints;
 }
 
-// Function to find the winner of the game by points
-// Function to find the game winner or "remi" in case of a tie (same points for all teams)
-function findGameWinner(teamScoresByRound) {
-  const totalPoints = {}; // To aggregate points for all teams
+// Function to calculate points from bakers with proper tie handling
+function calculateBakerPoints(bakersList: typeof bakers) {
+  const teamPoints: Record<string, number> = {};
+  const bakerScoreTotals: Record<string, number> = calculateRawBakerScores(bakersList);
 
-  // Iterate through each round to calculate total points
-  Object.keys(teamScoresByRound).forEach((round) => {
-    const scores = teamScoresByRound[round];
-    const teams = Object.keys(scores);
-    const maxScore = Math.max(...Object.values(scores)); // Find the highest score in the round
-    const winners = teams.filter((team) => scores[team] === maxScore); // Teams that are winners this round
+  const maxScore = Math.max(...Object.values(bakerScoreTotals)); // Get maximum baker score
+  const tiedTeams = Object.keys(bakerScoreTotals).filter((team) => bakerScoreTotals[team] === maxScore);
 
-    // Assign points (2 for winners, 0 for others)
-    teams.forEach((team) => {
-      if (!totalPoints[team]) totalPoints[team] = 0; // Initialize team total
-      if (winners.includes(team)) {
-        totalPoints[team] += 2; // Winners get 2 points
-      }
-    });
+  Object.keys(bakerScoreTotals).forEach((team) => {
+    if (tiedTeams.length > 1) {
+      // If there is a tie, every team gets 1 point
+      teamPoints[team] = (teamPoints[team] || 0) + 1;
+    } else if (bakerScoreTotals[team] === maxScore) {
+      // Winner gets 2 points
+      teamPoints[team] = (teamPoints[team] || 0) + 2;
+    } else {
+      // Loser gets 0 points (this is implicit)
+      teamPoints[team] = teamPoints[team] || 0;
+    }
   });
 
-  // Check if all teams have the same points
-  const uniquePoints = new Set(Object.values(totalPoints));
-  if (uniquePoints.size === 1) {
-    return "remi"; // All teams have the same points
-  }
+  return teamPoints;
+}
 
-  // Otherwise, find the team with the maximum points
-  let maxPoints = -Infinity;
-  let overallWinner = null;
+// Function to calculate outcome points for total scores
+function calculateOutcomePoints(totalPoints: Record<string, number>) {
+  const outcomePoints: Record<string, number> = {};
+  const maxScore = Math.max(...Object.values(totalPoints)); // Determine highest total points
+  const tiedTeams = Object.keys(totalPoints).filter((team) => totalPoints[team] === maxScore);
 
   Object.keys(totalPoints).forEach((team) => {
-    if (totalPoints[team] > maxPoints) {
-      maxPoints = totalPoints[team];
-      overallWinner = team;
+    if (tiedTeams.length > 1) {
+      // On tie, all tied teams get 1 point
+      outcomePoints[team] = 1;
+    } else if (totalPoints[team] === maxScore) {
+      // Winner gets 2 points
+      outcomePoints[team] = 2;
+    } else {
+      // All other teams get 0
+      outcomePoints[team] = 0;
     }
   });
 
-  return overallWinner; // Return the single team ID or null if no rounds are played
+  return outcomePoints;
 }
 
-async function calculateBakerWinnerWithTeam(bakers) {
-  // Aggregate points for each team (team IDs grouped)
-  const teamPoints = {}; // { teamId: totalPoints, ... }
-  const bakerPoints = {}; // { bakerId: { teamId, points }, ... }
-
-  bakers.value.forEach((baker) => {
-    const bakerId = baker.id; // Unique baker ID
-    const teamId = baker.team; // Use the baker's team field
-    const points = baker.points || 0; // Use `points` column or appropriate field, default 0
-
-    // Track points for each baker
-    bakerPoints[bakerId] = {
-      team: teamId,
-      points: points
-    };
-
-    // Aggregate points for each team
-    if (!teamPoints[teamId]) {
-      teamPoints[teamId] = 0; // Initialize team total points
-    }
-    teamPoints[teamId] += points;
-  });
-
-  // Find the baker(s) with the highest score
-  const maxPoints = Math.max(...Object.values(bakerPoints).map((baker) => baker.points));
-  const topBakers = Object.keys(bakerPoints).filter(
-      (bakerId) => bakerPoints[bakerId].points === maxPoints
-  );
-
-  // Award 2 bonus points to the top-performing baker(s)
-  topBakers.forEach((bakerId) => {
-    const teamId = bakerPoints[bakerId].team; // Get the team ID
-    const bonusPoints = 2;
-
-    // Add bonus points to the baker and their team
-    bakerPoints[bakerId].points += bonusPoints;
-    teamPoints[teamId] += bonusPoints;
-  });
-
-  // Find the team with the highest total points
-  const maxTeamPoints = Math.max(...Object.values(teamPoints));
-  const potentialWinningTeams = Object.keys(teamPoints).filter(
-      (teamId) => teamPoints[teamId] === maxTeamPoints
-  );
-
-  // Determine overall winner (if tied, results in "remi")
-  const overallWinner = potentialWinningTeams.length > 1 ? "remi" : potentialWinningTeams[0];
-
-  return {
-    overallWinner,
-    bakerPoints,
-    teamPoints
-  };
-}
-
-
+// onMounted lifecycle hook
 onMounted(async () => {
-  games.value = (await pb.collection('players_game').getList(1, 100, {
-    filter: 'game="' + props.league_game + '"',
-    expand: 'player'
+  // Fetch games data
+  games.value = (await pb.collection("players_game").getList(1, 100, {
+    filter: `game="${props.league_game}"`,
+    expand: "player", // Expand player relationships for team info
   })).items;
 
-  bakers.value = (await pb.collection('teams_baker').getList(1, 100, {
-    filter: 'game="' + props.league_game + '"'
+  // Fetch bakers data
+  bakers.value = (await pb.collection("teams_baker").getList(1, 100, {
+    filter: `game="${props.league_game}"`,
   })).items;
 
-  const result = await calculateBakerWinnerWithTeam(bakers);
+  // 1. Calculate raw game scores
+  const gameScores = calculateRawGameScores(games);
 
-  console.log("Baker Points:", result.teamPoints);
+  // 2. Calculate raw baker scores
+  const bakerScores = calculateRawBakerScores(bakers);
 
+  // 3. Combine gameScores and bakerScores into totalScores
+  const totalScores: Record<string, number> = { ...gameScores };
+  Object.keys(bakerScores).forEach((team) => {
+    totalScores[team] = (totalScores[team] || 0) + bakerScores[team];
+  });
 
-  // Calculate team scores by round
-  const teamScoresByRound = calculateScoresByRound(games);
+  // 4. Calculate game points
+  const teamScoresByRound = calculateScoresByRound(games); // Round-wise team scores
+  const gamePoints = calculateGamePoints(teamScoresByRound);
 
-  winners.value = findWinnersByRound(teamScoresByRound);
-// Execute the function with the sample data
-  const { roundResults, totalPoints, overallWinners } = calculatePointsForGame(
-      teamScoresByRound
+  // 5. Calculate baker points
+  const bakerPoints = calculateBakerPoints(bakers);
+
+  // 6. Combine points into totalPoints
+  const totalPoints: Record<string, number> = { ...gamePoints };
+  Object.keys(bakerPoints).forEach((team) => {
+    totalPoints[team] = (totalPoints[team] || 0) + bakerPoints[team];
+  });
+
+  // 7. Calculate outcome points
+  const outcomePoints = calculateOutcomePoints(totalPoints);
+
+  // 8. Add the final outcome points to totalPoints
+  const finalPoints: Record<string, number> = { ...totalPoints };
+  Object.keys(outcomePoints).forEach((team) => {
+    finalPoints[team] += outcomePoints[team];
+  });
+
+  // 9. Store all scores and points into the reactive state
+  teamScores.value = {
+    gameScores,
+    bakerScores,
+    totalScores,
+    gamePoints,
+    bakerPoints,
+    outcomePoints,
+    totalPoints: finalPoints, // Grand total
+  };
+
+  // 10. Determine the winner
+  const maxFinalPoints = Math.max(...Object.values(finalPoints));
+  const potentialWinners = Object.keys(finalPoints).filter(
+      (team) => finalPoints[team] === maxFinalPoints
   );
-// Total Points
-  console.log("\nTotal Points:");
-  Object.keys(totalPoints).forEach((team) =>
-      console.log(`${team}: ${totalPoints[team]}`)
-  );
 
-  const gameWinner = findGameWinner(teamScoresByRound);
-  console.log('Gewinner: '+gameWinner);
-})
+  winners.value = {
+    winner: potentialWinners.length > 1 ? "remi" : potentialWinners[0],
+    tied: potentialWinners.length > 1 ? potentialWinners : null, // List tied teams explicitly
+    scores: teamScores.value,
+  };
+
+  // Debugging
+  console.log("Team Scores:", teamScores.value);
+  console.log("Winner:", winners.value);
+});
 </script>
