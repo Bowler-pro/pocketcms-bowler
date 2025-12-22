@@ -6,7 +6,7 @@
         <button v-if="isPlayer" @click="add()" class="btn btn-primary btn-sm">
           <font-awesome-icon :icon="['fas', 'play']"/>
         </button>
-        <button v-if="!isLeader && isPlayer" @click="modalBaker=true" class="btn btn-primary btn-sm">
+        <button v-if="!isLeader && isPlayer" @click="modalAddBaker=true;modalAddBakerGame=route.params.id;modalAddBakerTeam=team.id" class="btn btn-primary btn-sm">
           <font-awesome-icon :icon="['fas', 'cake-candles']"/>
         </button>
       </section>
@@ -23,10 +23,10 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(spiel,index) in games" class="my-3">
+        <tr v-for="(spiel) in games" class="my-3">
           <td>
             <span>
-              Spiel #{{ index + 1 }}
+              Spiel #{{ spiel.round }}
               - <a :href="'/de/player/'+spiel.expand.player.id" class="text-primary">
               <b>
                 {{ spiel.expand.player.name }}
@@ -35,24 +35,22 @@
             </span>
           </td>
           <td>
-            {{ spiel.round }}
-          </td>
-          <td>
             {{ spiel.score }}
           </td>
           <td class="space-x-3">
             <a :href="'/de/game/edit?game='+spiel.id"
                v-if="spiel.expand?.player?.id == pb.authStore.record.id && spiel.locked == false"
                class="btn btn-sm btn-primary ml-3">bearbeiten</a>
-            <a :href="'/de/game/edit?game='+spiel.id" v-if="spiel.expand?.player?.id != pb.authStore.record.id && isTeamLeader && spiel.locked == false"
+            <a :href="'/de/game/edit?game='+spiel.id"
+               v-if="spiel.expand?.player?.id != pb.authStore.record.id && isTeamLeader && spiel.locked == false"
                class="btn btn-info btn-sm">
               <span>bearbeiten</span>
               <font-awesome-icon :icon="['fas', 'user-tie']"/>
             </a>
-            <a :href="'/de/game/confirm?game='+spiel.id" v-if="props.isLeader && spiel.locked == false"
+            <button v-if="props.isLeader && spiel.locked == false" @click="modalGameConfirm = true;confirmPlayerGame = spiel.id"
                class="btn btn-success btn-sm">
               <font-awesome-icon :icon="['fas', 'check']"/>
-            </a>
+            </button>
           </td>
         </tr>
         </tbody>
@@ -86,11 +84,11 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="(spiel,index) in baker" class="my-3">
+        <tr v-for="(spiel) in baker" class="my-3">
           <td>
-            Baker #{{index+1}} - <a :href="'/de/team/'+spiel.expand.team.id" class="text-primary">
-              {{ spiel.expand.team.name }}
-            </a>
+            Baker #{{ spiel.round }} - <a :href="'/de/team/'+spiel.expand.team.id" class="text-primary">
+            {{ spiel.expand.team.name }}
+          </a>
           </td>
           <td>
             {{ spiel.score }}
@@ -110,18 +108,23 @@
         </tbody>
       </table>
     </div>
-    <div class="">
-      {{score}}
-      {{blinde}}
+    <div class="alert alert-warning">
+      Vorraussichtliche Punkte: <b>{{ score }}</b> mit Blinden -> <b>{{ blinde }}</b>
     </div>
   </section>
+  <ModalConfirm />
+ <ModalAddBaker />
 </template>
 
 <script setup lang="ts">
 import {usePocketBase} from "@/utils/pocketbase";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { useLocalStorage } from "@vueuse/core";
+import ModalConfirm from "@/components/modal/Confirm.vue";
+import ModalAddBaker from "@/components/modal/AddBaker.vue";
 
-const emit = defineEmits(['score','result']);
+const route = useRoute();
+const emit = defineEmits(['score', 'result']);
 const pb = usePocketBase()
 const props = defineProps({
   team: {
@@ -138,7 +141,17 @@ const team = ref({});
 const games = ref([]);
 const blinde = ref(12);
 const baker = ref([]);
-const modalBaker = ref(false);
+
+const modalAddBaker = useLocalStorage('modalAddBaker', false, {})
+const modalAddBakerGame = useLocalStorage('modalAddBakerGame', '', {})
+const modalAddBakerTeam = useLocalStorage('modalAddBakerTeam', '', {})
+
+const modalGameConfirm = useLocalStorage('modalGameConfirm', false, {})
+const confirmPlayerGame = useLocalStorage('confirmPlayerGame', '', {})
+
+const modalGameEdit = useLocalStorage('modalGameEdit', false, {})
+const editPlayerGame = useLocalStorage('editPlayerGame', '', {})
+
 
 const load = async () => {
   pb.autoCancellation(false);
@@ -163,10 +176,11 @@ const score = computed(() => {
   games.value.forEach((game) => {
     points += game.score
   })
+
   blinde.value = 12 - games.value.length;
 
   emit('score', points)
-  return points;
+  return points + (blinde.value * 130);
 });
 
 const isPlayer = computed(() => {
