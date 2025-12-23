@@ -183,7 +183,7 @@ function calculateScores() {
       const bakersWithMaxScore = bakers.filter((b) => scores[b] === maxScore);
 
       if (bakerScore === maxScore && bakersWithMaxScore.length > 1) {
-        roundPointsBakers[roundIndex][baker] = 1; // Tie
+        roundPointsBakers[roundIndex][baker] = 1; // Tie - each team gets 1 point
       } else if (bakerScore === maxScore) {
         roundPointsBakers[roundIndex][baker] = 2; // Win
       } else {
