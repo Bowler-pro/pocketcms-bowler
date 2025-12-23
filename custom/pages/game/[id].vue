@@ -12,10 +12,7 @@
                       @score="handleScore($event,team)"
       />
     </section>
-
-    <WinnerPoints  :league_game="route.params.id" :teams="game.teams"/>
-    <WinnerButton :data="winner"></WinnerButton>
-
+    <ScoreBoard :game="route.params.id" :teams="game.teams"></ScoreBoard>
   </section>
 </template>
 
@@ -24,8 +21,7 @@ import {usePocketBase} from "@/utils/pocketbase";
 import {onMounted} from "vue";
 import {useRoute} from 'vue-router'
 import TeamScoreboard from "@/components/TeamScoreboard.vue";
-import WinnerButton from "@/components/WinnerButton.vue";
-import WinnerPoints from "../../components/WinnerPoints.vue";
+import ScoreBoard from "../../components/scoreBoard.vue";
 
 const pb = usePocketBase()
 const route = useRoute()
