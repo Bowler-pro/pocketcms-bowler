@@ -108,7 +108,12 @@ function calculateScores() {
       .fill(null)
       .map(() => ({}));
 
-  // Populate team scores
+  // Count players per team per round
+  const playerCounts: Record<string, number>[] = Array(3)
+      .fill(null)
+      .map(() => ({}));
+
+  // Populate team scores and count players
   games.value.forEach((game: any) => {
     const team = game.expand?.player?.team;
     const round = Number(game.round);
@@ -117,7 +122,18 @@ function calculateScores() {
     if (team && score >= 0 && round > 0 && round <= 3) {
       roundScores[round - 1][team] =
           (roundScores[round - 1][team] || 0) + score;
+      playerCounts[round - 1][team] =
+          (playerCounts[round - 1][team] || 0) + 1;
     }
+  });
+
+  // Add 130 points for each missing player (each team should have 4 players)
+  roundScores.forEach((scores, roundIndex) => {
+    Object.keys(scores).forEach((team) => {
+      const actualPlayers = playerCounts[roundIndex][team] || 0;
+      const missingPlayers = Math.max(0, 4 - actualPlayers);
+      roundScores[roundIndex][team] += missingPlayers * 130;
+    });
   });
 
   // Populate baker scores (only for rounds 1 and 2)
