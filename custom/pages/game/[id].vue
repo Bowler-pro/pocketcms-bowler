@@ -2,7 +2,7 @@
   <section class="bg-white px-3 py-3">
     <section class="headline mb-3">
       {{ game.expand?.league.name }} -
-      {{ game.name }} | {{ teamNamesVs }}
+      {{ game.name }} | {{ gameDate }} | {{ teamNamesVs }}
     </section>
     <br>
     <section class="grid grid-cols-6 gap-3 mb-3">
@@ -43,6 +43,16 @@ const load = async () => {
 const teamNamesVs = computed(() => {
   let teamNames = game.value.expand?.teams?.map(team => team.name) || [];
   return teamNames.join(' vs. ');
+});
+
+const gameDate = computed(() => {
+  if (!game.value.date) return '';
+  const date = new Date(game.value.date);
+  return date.toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 });
 
 const isEnemy = (teamID) => {

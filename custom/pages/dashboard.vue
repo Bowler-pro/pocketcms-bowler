@@ -6,7 +6,8 @@
         <thead>
         <tr>
           <th>Name</th>
-          <th>Job</th>
+          <th>Spiele</th>
+          <th>Tabelle</th>
         </tr>
         </thead>
         <tbody>
@@ -20,7 +21,12 @@
           </td>
           <td>
             <a :href="'/de/games/'+liga.id" class="btn btn-sm btn-primary">
-              anschauen
+              Spiele
+            </a>
+          </td>
+          <td>
+            <a :href="`/de/stats/liga?id=${liga.id}`" class="btn btn-sm btn-success">
+              Tabelle
             </a>
           </td>
         </tr>
