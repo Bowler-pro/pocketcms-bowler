@@ -176,6 +176,15 @@ function calculateScores() {
   roundScoresBakers.forEach((scores, roundIndex) => {
     if (roundIndex >= 2) return; // Skip round 3 for bakers
     const bakers = Object.keys(scores);
+
+    // If no baker entries, give 1 point to each team
+    if (bakers.length === 0) {
+      props.teams.forEach((team) => {
+        roundPointsBakers[roundIndex][team] = 1;
+      });
+      return;
+    }
+
     const maxScore = Math.max(...Object.values(scores));
 
     bakers.forEach((baker) => {
