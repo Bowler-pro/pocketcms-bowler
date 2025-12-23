@@ -128,11 +128,15 @@ function calculateScores() {
   });
 
   // Add 130 points for each missing player (each team should have 4 players)
-  roundScores.forEach((scores, roundIndex) => {
-    Object.keys(scores).forEach((team) => {
+  // Ensure all teams from props are accounted for in every round
+  props.teams.forEach((team) => {
+    roundScores.forEach((scores, roundIndex) => {
+      if (!scores[team]) {
+        scores[team] = 0;
+      }
       const actualPlayers = playerCounts[roundIndex][team] || 0;
       const missingPlayers = Math.max(0, 4 - actualPlayers);
-      roundScores[roundIndex][team] += missingPlayers * 130;
+      scores[team] += missingPlayers * 130;
     });
   });
 
