@@ -8,6 +8,7 @@
           <th>Name</th>
           <th>Spiele</th>
           <th>Tabelle</th>
+          <th>Spieltag</th>
         </tr>
         </thead>
         <tbody>
@@ -27,6 +28,11 @@
           <td>
             <a :href="`/de/stats/liga?id=${liga.id}`" class="btn btn-sm btn-success">
               Tabelle
+            </a>
+          </td>
+          <td>
+            <a :href="`/de/stats/spieltag?id=${liga.id}`" class="btn btn-sm btn-info">
+              Spieltag
             </a>
           </td>
         </tr>

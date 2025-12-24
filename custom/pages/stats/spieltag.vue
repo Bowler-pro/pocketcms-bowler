@@ -1,8 +1,22 @@
 <template>
-  <div class="bg-white mx-auto">
-    <h1 class="text-3xl font-bold text-center mb-8">Spieltag Scoreboard</h1>
+  <div class="bg-white mx-auto p-4">
+    <h1 class="text-3xl font-bold text-center mb-2">{{ leagueName || 'Spieltag Scoreboard' }}</h1>
+    <h2 class="text-xl text-center mb-8 text-gray-600">Spieltag Scoreboard</h2>
 
-    <div v-if="Object.keys(groupedPlaydays).length" class="space-y-12">
+    <div v-if="noGames" class="alert alert-warning shadow-lg max-w-2xl mx-auto">
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+        <div>
+          <h3 class="font-bold">Keine Spiele gefunden</h3>
+          <div class="text-xs">Für diese Liga wurden noch keine Spiele angelegt.</div>
+        </div>
+      </div>
+      <div class="flex-none">
+        <a href="/de/dashboard" class="btn btn-sm btn-primary">Zurück zum Dashboard</a>
+      </div>
+    </div>
+
+    <div v-else-if="Object.keys(groupedPlaydays).length" class="space-y-12">
       <div v-for="(games, date) in groupedPlaydays" :key="date" class="card bg-base-100 shadow-xl">
         <div class="card-body">
           <h2 class="card-title text-2xl border-b-2 border-success pb-2 mb-4">Spieltag - {{ formatDate(date) }}</h2>
@@ -28,7 +42,7 @@
         </div>
       </div>
     </div>
-    <div v-else class="flex justify-center items-center min-h-screen">
+    <div v-else-if="loading" class="flex justify-center items-center min-h-screen">
       <span class="loading loading-spinner loading-lg"></span>
       <p class="ml-4 text-lg">Loading spieltags...</p>
     </div>
@@ -38,27 +52,53 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { usePocketBase } from "@/utils/pocketbase";
+import { useRoute, useRouter } from "vue-router";
 
 const pb = usePocketBase();
+const route = useRoute();
+const router = useRouter();
 const playdays = ref([]);
 const groupedPlaydays = ref<Record<string, any[]>>({});
 const playdayScores = ref<Record<string, any>>({});
 const teamNames = ref<Record<string, string>>({});
+const leagueName = ref<string>("");
+const loading = ref(true);
+const noGames = ref(false);
 
 onMounted(async () => {
   try {
+    const leagueId = route.query.id;
+
+    // Redirect to dashboard if no league id
+    if (!leagueId) {
+      router.push('/dashboard');
+      return;
+    }
+
+    // Fetch league name
+    const league = await pb.collection("leagues").getOne(leagueId as string);
+    leagueName.value = league.name;
+
     // Fetch all teams first
     const teams = (await pb.collection("teams").getList(1, 1000)).items;
     teams.forEach((team: any) => {
       teamNames.value[team.id] = team.name;
     });
 
-    // Fetch all playdays
+    // Fetch playdays filtered by league
     playdays.value = (
       await pb.collection("league_game").getList(1, 1000, {
+        filter: `league="${leagueId}"`,
         sort: "date",
       })
     ).items;
+
+    // Check if there are no games
+    if (playdays.value.length === 0) {
+      noGames.value = true;
+      loading.value = false;
+      return;
+    }
 
     // Group playdays by date and merge duplicate team matchups
     const grouped: Record<string, any[]> = {};
@@ -89,8 +129,11 @@ onMounted(async () => {
 
     // Merge scores for duplicate team pairs
     mergeMatchupScores();
+
+    loading.value = false;
   } catch (error) {
     console.error("Error fetching playdays:", error);
+    loading.value = false;
   }
 });
 
