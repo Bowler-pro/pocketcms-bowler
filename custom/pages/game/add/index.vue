@@ -4,10 +4,6 @@
       <div class="col-span-6 md:col-span-3">
         <form @submit.prevent="add()">
           <label class="floating-label mt-3">
-            <span>Your Name</span>
-            <input type="text" required v-model="form.name" class="validator input w-full" />
-          </label>
-          <label class="floating-label mt-3">
             <span>Your Round</span>
             <select v-model="form.round" class="select w-full">
               <option value="1">1</option>
