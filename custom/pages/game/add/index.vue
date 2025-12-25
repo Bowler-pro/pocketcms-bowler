@@ -49,7 +49,6 @@ const teams = ref([]);
 const form = ref({
   game: '',
   round: 1,
-  name: '',
   score: '',
   player: '',
 });
