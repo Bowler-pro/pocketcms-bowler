@@ -22,13 +22,19 @@ const form = ref({
   round: 1
 });
 
+const games = ref([]);
+const teams = ref([]);
+
 watch(modalAddBaker, ()=>{
   form.value.game = modalAddBakerGame.value;
   form.value.team = modalAddBakerTeam.value;
 })
 
-onMounted(() => {
+onMounted(async() => {
   modalAddBaker.value = false
+
+  games.value = await pb.collection('league_game').getFullList(100)
+  teams.value = await pb.collection('teams').getFullList(100)
 })
 </script>
 
@@ -40,11 +46,15 @@ onMounted(() => {
       <form class="space-y-5">
         <label class="floating-label">
           <span>Your Team</span>
-          <input type="text" v-model="form.team" required class="input w-full validator"/>
+          <select class="select select-disabled w-full select-sm">
+            <option v-for="game in teams" :value="game.id">{{game.name}}</option>
+          </select>
         </label>
         <label class="floating-label">
           <span>Your Game</span>
-          <input type="text" v-model="form.game" required class="input w-full validator"/>
+          <select class="select select-disabled w-full select-sm">
+            <option v-for="game in games" :value="game.id">{{game.name}}</option>
+          </select>
         </label>
         <label class="floating-label">
           <span>Your Score</span>
