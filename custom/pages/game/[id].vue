@@ -1,8 +1,8 @@
 <template>
   <section class="bg-white px-3 py-3">
     <section class="headline mb-3">
-      {{ game.expand?.league.name }} -
-      {{ game.name }} | {{ gameDate }} | {{ teamNamesVs }}
+      <a :href="'/game/'+game.expand?.league.id" class="text-primary">{{ game.expand?.league.name }}</a> -
+      <a :href="'/game/'+game.id" class="text-primary">{{ game.name }}</a> - {{ gameDate }} <br> {{ teamNamesVs }}
     </section>
     <br>
     <section class="grid grid-cols-6 gap-3 mb-3">
