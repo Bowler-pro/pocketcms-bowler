@@ -6,10 +6,10 @@
       <table class="table table-zebra w-full shadow-lg">
         <thead class="bg-gray-300">
         <tr>
-          <th class="text-left">Rank</th>
+          <th class="text-left">Rang</th>
           <th class="text-left">Name</th>
-          <th class="text-left">Game Count</th>
-          <th class="text-left">Average</th>
+          <th class="text-left">Anzahl</th>
+          <th class="text-left">Durchschnitt</th>
         </tr>
         </thead>
         <tbody>
