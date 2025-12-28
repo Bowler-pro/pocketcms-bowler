@@ -1,5 +1,5 @@
 <template>
-  <div class=" mx-auto  bg-white">
+  <div class="mx-auto  px-3 py-3 bg-white">
     <h1 class="text-3xl font-bold text-center mb-6">Player Stats & Ranking</h1>
 
     <div v-if="playerStats.length" class="overflow-x-auto">
